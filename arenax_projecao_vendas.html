@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArenaX — Projeção de Vendas</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--text:#17202a;--muted:#68727d;--border:#e5e9ee;--accent:#111827;--green:#16835b;--yellow:#b7791f;--red:#c53030}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,Arial,sans-serif;color:var(--text)}
+.container{max-width:1180px;margin:auto;padding:32px 20px 50px}
+.header{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:26px}
+h1{font-size:32px;margin:0 0 7px}.subtitle{color:var(--muted);font-size:15px}.date{font-size:13px;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 2px 8px #00000008}
+.kpi-label{font-size:13px;color:var(--muted);margin-bottom:9px}.kpi-value{font-size:28px;font-weight:800}.kpi-note{font-size:12px;color:var(--muted);margin-top:6px}
+.section{margin-top:20px}.section-title{font-size:19px;font-weight:750;margin:0 0 12px}
+.chart-card{padding:20px}.chart-wrap{height:430px}
+.scenarios{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.scenario{position:relative;overflow:hidden}.scenario h3{margin:0 0 14px}.scenario .big{font-size:30px;font-weight:800}.scenario p{margin:6px 0;color:var(--muted);font-size:14px}.scenario .bar{height:7px;border-radius:8px;background:#e8ebef;margin-top:17px}.scenario .fill{height:100%;border-radius:8px}.conservative .fill{width:67%}.probable .fill{width:83%}.aggressive .fill{width:100%}
+.conservative .fill{background:var(--red)}.probable .fill{background:var(--yellow)}.aggressive .fill{background:var(--green)}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:13px 12px;border-bottom:1px solid var(--border);text-align:right}th:first-child,td:first-child{text-align:left}th{color:var(--muted);font-weight:650;background:#fafbfc}.total td{font-weight:800;border-bottom:0}
+.note{background:#fff;border:1px solid var(--border);border-radius:14px;padding:17px 20px;color:#4b5563;font-size:13px;line-height:1.55}
+.footer{text-align:center;color:var(--muted);font-size:12px;margin-top:25px}
+@media(max-width:800px){.kpis,.scenarios{grid-template-columns:1fr 1fr}.header{display:block}.date{margin-top:10px}}
+@media(max-width:560px){.kpis,.scenarios{grid-template-columns:1fr}.container{padding:22px 12px}.chart-wrap{height:350px}h1{font-size:26px}table{font-size:12px}th,td{padding:10px 7px}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>ArenaX — Projeção de Vendas</h1>
+      <div class="subtitle">Simulado de HYROX • Santos • 19/09/2026</div>
+    </div>
+    <div class="date">Base de dados: inscrições até 17/08/2026</div>
+  </div>
+
+  <div class="kpis">
+    <div class="card"><div class="kpi-label">Inscritos atuais</div><div class="kpi-value">146</div><div class="kpi-note">último dado informado: 17/08</div></div>
+    <div class="card"><div class="kpi-label">Faturamento atual</div><div class="kpi-value">R$ 37.514</div><div class="kpi-note">estimado pela quantidade em cada lote</div></div>
+    <div class="card"><div class="kpi-label">Projeção provável</div><div class="kpi-value">370</div><div class="kpi-note">inscritos até 12/09</div></div>
+    <div class="card"><div class="kpi-label">Faturamento provável</div><div class="kpi-value">~R$ 106 mil</div><div class="kpi-note">cenário central</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Evolução e projeção de inscrições</div>
+    <div class="card chart-card"><div class="chart-wrap"><div id="salesSvg" style="width:100%;height:100%;"></div></div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Cenários até o encerramento das vendas</div>
+    <div class="scenarios">
+      <div class="card scenario conservative"><h3>Conservador</h3><div class="big">300 inscritos</div><p>Faturamento estimado: <strong>~R$ 85,8 mil</strong></p><p>Desaceleração das vendas após os picos de lote.</p><div class="bar"><div class="fill"></div></div></div>
+      <div class="card scenario probable"><h3>Provável</h3><div class="big">370 inscritos</div><p>Faturamento estimado: <strong>~R$ 105,8 mil</strong></p><p>Manutenção de boa velocidade + efeito da virada de lote.</p><div class="bar"><div class="fill"></div></div></div>
+      <div class="card scenario aggressive"><h3>Agressivo</h3><div class="big">450 inscritos</div><p>Faturamento estimado: <strong>~R$ 134,1 mil</strong></p><p>Aceleração forte na virada e na reta final.</p><div class="bar"><div class="fill"></div></div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Tabela de projeção — cenário provável</div>
+    <div class="card">
+      <table>
+        <thead><tr><th>Período</th><th>Lote</th><th>Preço</th><th>Novos inscritos</th><th>Receita</th><th>Acumulado</th></tr></thead>
+        <tbody>
+          <tr><td>Até 15/08</td><td>1º</td><td>R$ 249</td><td>117</td><td>R$ 29.133</td><td>R$ 29.133</td></tr>
+          <tr><td>16–17/08</td><td>2º</td><td>R$ 289</td><td>29</td><td>R$ 8.381</td><td>R$ 37.514</td></tr>
+          <tr><td>18–24/08</td><td>2º</td><td>R$ 289</td><td>54</td><td>R$ 15.606</td><td>R$ 53.120</td></tr>
+          <tr><td>25–31/08</td><td>3º</td><td>R$ 329</td><td>50</td><td>R$ 16.450</td><td>R$ 69.570</td></tr>
+          <tr><td>01–05/09</td><td>3º</td><td>R$ 329</td><td>40</td><td>R$ 13.160</td><td>R$ 82.730</td></tr>
+          <tr><td>06–10/09</td><td>3º</td><td>R$ 329</td><td>40</td><td>R$ 13.160</td><td>R$ 95.890</td></tr>
+          <tr><td>11–12/09</td><td>3º</td><td>R$ 329</td><td>30</td><td>R$ 9.870</td><td>R$ 105.760</td></tr>
+          <tr class="total"><td colspan="3">Total</td><td>370</td><td>R$ 105.760</td><td>R$ 105.760</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="note"><strong>Leitura estratégica:</strong> a principal variável é a velocidade de vendas antes e depois da troca para o lote de R$ 329 em 25/08. Chegar a aproximadamente 200 inscritos até 24/08 coloca o evento em uma trajetória favorável para terminar na faixa de 350–400 atletas. Os números posteriores a 17/08 são projeções, não vendas realizadas.</div>
+  </div>
+
+  <div class="footer">ArenaX • Projeção elaborada com os dados de inscrições e preços informados.</div>
+</div>
+
+<script>
+const points = [
+  ["23/07",5,"real"],["26/07",13,"real"],["27/07",17,"real"],["28/07",23,"real"],
+  ["31/07",24,"real"],["01/08",29,"real"],["13/08",104,"real"],["14/08",117,"real"],
+  ["17/08",146,"real"],["19/08",160,"proj"],["24/08",200,"proj"],["25/08",210,"proj"],
+  ["31/08",260,"proj"],["05/09",300,"proj"],["10/09",340,"proj"],["12/09",370,"proj"]
+];
+
+const svg = document.getElementById("salesSvg");
+const W=1000,H=390,L=65,R=25,T=25,B=55;
+const plotW=W-L-R, plotH=H-T-B;
+const maxY=400;
+const x=i=>L+(i/(points.length-1))*plotW;
+const y=v=>T+(1-v/maxY)*plotH;
+
+let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" height="100%" role="img" aria-label="Gráfico de inscrições reais e projetadas do ArenaX">`;
+s+=`<rect x="0" y="0" width="${W}" height="${H}" fill="white"/>`;
+
+// Grid and y labels
+for(let v=0;v<=400;v+=50){
+  const yy=y(v);
+  s+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#e5e9ee" stroke-width="1"/>`;
+  s+=`<text x="${L-12}" y="${yy+4}" text-anchor="end" font-size="12" fill="#68727d">${v}</text>`;
+}
+
+// Vertical markers for lot changes
+const lot2=points.findIndex(p=>p[0]==="19/08");
+const lot3=points.findIndex(p=>p[0]==="25/08");
+for(const [idx,label] of [[lot2,"Atual"],[lot3,"3º lote"]]){
+  const xx=x(idx);
+  s+=`<line x1="${xx}" y1="${T}" x2="${xx}" y2="${H-B}" stroke="#c7cdd4" stroke-width="1" stroke-dasharray="5 5"/>`;
+  s+=`<text x="${xx+6}" y="${T+15}" font-size="11" fill="#68727d">${label}</text>`;
+}
+
+// Split actual and projected polylines, connecting at 17/08
+const realPts=points.slice(0,9).map((p,i)=>`${x(i)},${y(p[1])}`).join(" ");
+const projPts=points.slice(8).map((p,j)=>`${x(j+8)},${y(p[1])}`).join(" ");
+s+=`<polyline points="${realPts}" fill="none" stroke="#111827" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`;
+s+=`<polyline points="${projPts}" fill="none" stroke="#16835b" stroke-width="4" stroke-dasharray="9 7" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+// Points and labels
+points.forEach((p,i)=>{
+  const xx=x(i), yy=y(p[1]);
+  const fill=p[2]==="real" ? "#111827" : "#16835b";
+  s+=`<circle cx="${xx}" cy="${yy}" r="5" fill="${fill}" stroke="white" stroke-width="2"/>`;
+  if(i===8 || i===points.length-1){
+    s+=`<text x="${xx}" y="${yy-13}" text-anchor="middle" font-size="12" font-weight="700" fill="${fill}">${p[1]}</text>`;
+  }
+});
+
+// X labels
+points.forEach((p,i)=>{
+  const xx=x(i);
+  s+=`<text x="${xx}" y="${H-B+23}" text-anchor="middle" font-size="11" fill="#68727d">${p[0]}${p[2]==="proj"?"*":""}</text>`;
+});
+
+s+=`<text x="${L}" y="${H-8}" font-size="11" fill="#68727d">* projeção</text>`;
+s+=`</svg>`;
+svg.innerHTML=s;
+</script>
+</body>
+</html>
